@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+struct Solution;
 
-pub struct Solution;
+use std::collections::HashMap;
 
 impl Solution {
     pub fn kth_distinct(arr: Vec<String>, k: i32) -> String {
@@ -17,9 +17,9 @@ impl Solution {
         for item in arr.iter() {
             if counter[item] == 1 {
                 count += 1;
-                if count == k {
-                    return item.into();
-                }
+            }
+            if count == k {
+                return item.into();
             }
         }
 
@@ -36,36 +36,27 @@ mod tests {
         assert_eq!(
             "a".to_string(),
             Solution::kth_distinct(
-                vec![
-                    "d".to_string(),
-                    "b".to_string(),
-                    "c".to_string(),
-                    "b".to_string(),
-                    "c".to_string(),
-                    "a".to_string()
-                ],
+                vec!["d", "b", "c", "b", "c", "a"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
                 2
             )
         );
         assert_eq!(
             "aaa".to_string(),
             Solution::kth_distinct(
-                vec![
-                    "aaa".to_string(),
-                    "aa".to_string(),
-                    "a".to_string(),
-                ],
+                vec!["aaa", "aa", "a"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
                 1
             )
         );
         assert_eq!(
             "".to_string(),
             Solution::kth_distinct(
-                vec![
-                    "a".to_string(),
-                    "b".to_string(),
-                    "a".to_string(),
-                ],
+                vec!["a", "b", "a"].iter().map(|s| s.to_string()).collect(),
                 3
             )
         );
