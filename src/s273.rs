@@ -7,37 +7,34 @@ impl Solution {
             return "Zero".to_string();
         }
 
-        let num_str = num.to_string();
-        let mut bytes = num_str.bytes().collect::<Vec<u8>>();
-        bytes.reverse();
-        let chunks = bytes.chunks(3).rev();
-        let chunks_len = chunks.len();
+        let bytes = num.to_string().bytes().rev().collect::<Vec<u8>>();
+        let chunks: Vec<_> = bytes.chunks(3).rev().collect();
         let mut words = Vec::<String>::new();
 
-        for (idx, chunk) in chunks.enumerate() {
+        for (idx, chunk) in chunks.iter().enumerate() {
             let spell: String;
-            let mut ck: Vec<u8> = chunk.iter().map(|&b| b).collect();
-            ck.reverse();
-            if ck.len() < 3 {
-                let mut new_chunk: Vec<u8> = vec![b'0'; 3 - ck.len()];
-                new_chunk.extend_from_slice(ck.as_slice());
-                spell = Self::spell(new_chunk.as_slice());
+            let mut tribytes: Vec<u8> = chunk.iter().map(|&b| b).collect();
+            tribytes.reverse();
+            if tribytes.len() < 3 {
+                let mut filled_tribytes: Vec<u8> = vec![b'0'; 3 - tribytes.len()];
+                filled_tribytes.extend_from_slice(tribytes.as_slice());
+                spell = Self::spell(filled_tribytes.as_slice());
             } else {
-                spell = Self::spell(ck.as_slice());
+                spell = Self::spell(tribytes.as_slice());
             }
-
-            let magnitude = Self::spell_magitude(chunks_len - idx);
             if spell.is_empty() {
                 continue;
             }
-
+            
             words.push(spell);
+
+            let magnitude = Self::spell_magitude(chunks.len() - idx);
             if !magnitude.is_empty() {
                 words.push(magnitude);
             }
         }
 
-        words.join(" ").trim().to_string()
+        words.join(" ")
     }
 
     fn spell_magitude(idx: usize) -> String {
