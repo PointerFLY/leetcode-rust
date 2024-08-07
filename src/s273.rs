@@ -8,24 +8,36 @@ impl Solution {
         }
 
         let num_str = num.to_string();
-        let chunks = num_str.as_bytes().chunks(3);
+        let mut bytes = num_str.bytes().collect::<Vec<u8>>();
+        bytes.reverse();
+        let chunks = bytes.chunks(3).rev();
         let chunks_len = chunks.len();
         let mut words = Vec::<String>::new();
 
         for (idx, chunk) in chunks.enumerate() {
-            let spell = Self::spell(chunk);
+            let spell: String;
+            let mut ck: Vec<u8> = chunk.iter().map(|&b| b).collect();
+            ck.reverse();
+            if ck.len() < 3 {
+                let mut new_chunk: Vec<u8> = vec![b'0'; 3 - ck.len()];
+                new_chunk.extend_from_slice(ck.as_slice());
+                spell = Self::spell(new_chunk.as_slice());
+            } else {
+                spell = Self::spell(ck.as_slice());
+            }
+
             let magnitude = Self::spell_magitude(chunks_len - idx);
             if spell.is_empty() {
                 continue;
             }
 
-            words.push(Self::spell(chunk));
+            words.push(spell);
             if !magnitude.is_empty() {
                 words.push(magnitude);
             }
         }
 
-        words.join(" ")
+        words.join(" ").trim().to_string()
     }
 
     fn spell_magitude(idx: usize) -> String {
@@ -41,6 +53,14 @@ impl Solution {
 
     fn spell(bytes: &[u8]) -> String {
         let hundreds = Self::spell_hundreds(bytes[0]);
+        if bytes[1] == b'1' {
+            if !hundreds.is_empty() {
+                return hundreds + " " + Self::spell_ten_plus(bytes[2].clone()).as_str();
+            } else {
+                return Self::spell_ten_plus(bytes[2].clone());
+            }
+        }
+
         let tens = Self::spell_tens(bytes[1]);
         let ones = Self::spell_ones(bytes[2]);
 
@@ -79,23 +99,22 @@ impl Solution {
             b'7' => "Seventeen",
             b'8' => "Eighteen",
             b'9' => "Nineteen",
-            _ => "Unknown"
+            _ => "UnknownTenPlus"
         }.to_string()
     }
 
     fn spell_tens(byte: u8) -> String {
         match byte {
             b'0' => "",
-            b'1' => "Ten",
             b'2' => "Twenty",
             b'3' => "Thirty",
-            b'4' => "Fourty",
+            b'4' => "Forty",
             b'5' => "Fifty",
             b'6' => "Sixty",
             b'7' => "Seventy",
             b'8' => "Eighty",
             b'9' => "Ninety",
-            _ => "Unknown"
+            _ => "UnknownTens"
         }.to_string()
     }
 
@@ -111,7 +130,7 @@ impl Solution {
             b'7' => "Seven",
             b'8' => "Eight",
             b'9' => "Nine",
-            _ => "Unknown"
+            _ => "UnknownOnes"
         }.to_string()
     }
 }
@@ -125,9 +144,9 @@ mod tests {
     fn test() {
         assert_eq!(Solution::number_to_words(123), "One Hundred Twenty Three");
         assert_eq!(Solution::number_to_words(12345), "Twelve Thousand Three Hundred Forty Five");
-        // assert_eq!(Solution::number_to_words(1234567), "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Sevens");
-        // assert_eq!(Solution::number_to_words(2013), "Two Thousand Thirteen");
-        // assert_eq!(Solution::number_to_words(10000010), "Ten Million Ten");
-        // assert_eq!(Solution::number_to_words(0), "Zero");
+        assert_eq!(Solution::number_to_words(1234567), "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven");
+        assert_eq!(Solution::number_to_words(2013), "Two Thousand Thirteen");
+        assert_eq!(Solution::number_to_words(10000010), "Ten Million Ten");
+        assert_eq!(Solution::number_to_words(0), "Zero");
     }
 }
